@@ -1,0 +1,52 @@
+service: sls-aws-go-template # NOTE: update this with your service name
+
+provider:
+  name: aws
+  runtime: go1.x
+  stage: ${opt:stage, "dev"}
+
+package:
+  individually: true
+  exclude:
+    - "*/**"
+
+functions:
+  protected:
+    handler: lambda/http/bin/main
+    events:
+      - http:
+          method: GET
+          path: /protected
+          authorizer:
+            name: authorizer 
+            resultTtlInSeconds: 0
+    package:
+      include:
+        - lambda/http/bin/main
+
+  unprotected:
+    handler: lambda/http/bin/main
+    events:
+      - http:
+          method: GET
+          path: /unprotected
+    package:
+      include:
+        - lambda/http/bin/main
+
+  authorizer:
+    handler: lambda/authorizer/bin/main
+    package:
+      include:
+        - lambda/authorizer/bin/main
+
+resources:
+ Outputs:
+    AuthorizerLambda:
+      Description: "Authorizer Lambda Function"
+      Value:
+        Fn::GetAtt:
+          - AuthorizerLambdaFunction
+          - Arn
+      Export:
+        Name: AuthorizerLambda-${self:service}-${self:provider.stage}

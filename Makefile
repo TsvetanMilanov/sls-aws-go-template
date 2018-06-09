@@ -75,7 +75,7 @@ deploy: $(BUILD_DIR)/deploy
 remove:
 	$(call print,Removing service...)
 	@serverless remove --stage $(STAGE)
-	$(call print,Service successfully deployed)
+	$(call print,Service successfully removed)
 
 tail-logs:
 	serverless logs -tail -f $(f) --stage $(STAGE)
